@@ -3,7 +3,7 @@ services:
   autocomplete:
     build: .
     ports:
-      - "127.0.0.1:8080:8080"
+      - "0.0.0.0:8080:8080"
     environment:
       TPA_SERVER_BIND: 127.0.0.1:8080
       TPA_SERVER_REQUEST_TTL: 3s
