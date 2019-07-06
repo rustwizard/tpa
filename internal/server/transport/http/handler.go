@@ -25,18 +25,18 @@ func (h *Handler) autocomplete(ctx *fasthttp.RequestCtx) {
 	var ac AutocompleteRequest
 
 	if err := json.Unmarshal(ctx.PostBody(), &ac); err != nil {
-		h.log.Err(err).Msg("parse json")
-		h.response(ctx, fasthttp.StatusBadRequest, ctx.PostBody())
+		h.log.Err(err).Uint64("request_id", ctx.ID()).Msg("parse json")
+		h.response(ctx, fasthttp.StatusBadRequest, []byte{})
 		return
 	}
 
 	if _, err := govalidator.ValidateStruct(ac); err != nil {
-		h.log.Err(err).Msg("validate request")
-		h.response(ctx, fasthttp.StatusBadRequest, ctx.PostBody())
+		h.log.Err(err).Uint64("request_id", ctx.ID()).Msg("validate request")
+		h.response(ctx, fasthttp.StatusBadRequest, []byte{})
 		return
 	}
 
-	h.response(ctx, fasthttp.StatusOK, ctx.Request.Host())
+	h.response(ctx, fasthttp.StatusOK, []byte{})
 }
 
 func (h *Handler) response(ctx *fasthttp.RequestCtx, status int, res []byte) {
