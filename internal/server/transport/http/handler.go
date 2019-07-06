@@ -26,15 +26,23 @@ func (h *Handler) autocomplete(ctx *fasthttp.RequestCtx) {
 
 	if err := json.Unmarshal(ctx.PostBody(), &ac); err != nil {
 		h.log.Err(err).Uint64("request_id", ctx.ID()).Msg("parse json")
-		h.response(ctx, fasthttp.StatusBadRequest, []byte{})
+		h.responseError(ctx, fasthttp.StatusBadRequest, Error{
+			Code:    -1,
+			Message: "parse json",
+		})
 		return
 	}
 
 	if _, err := govalidator.ValidateStruct(ac); err != nil {
 		h.log.Err(err).Uint64("request_id", ctx.ID()).Msg("validate request")
-		h.response(ctx, fasthttp.StatusBadRequest, []byte{})
+		h.responseError(ctx, fasthttp.StatusBadRequest, Error{
+			Code:    -2,
+			Message: "validate request",
+		})
 		return
 	}
+
+	h.log.Debug().Str("request", ac.String()).Msg("")
 
 	h.response(ctx, fasthttp.StatusOK, []byte{})
 }
@@ -42,5 +50,16 @@ func (h *Handler) autocomplete(ctx *fasthttp.RequestCtx) {
 func (h *Handler) response(ctx *fasthttp.RequestCtx, status int, res []byte) {
 	ctx.SetStatusCode(status)
 	ctx.SetContentType(MIMEApplicationJSON)
+	ctx.SetBody(res)
+}
+
+func (h *Handler) responseError(ctx *fasthttp.RequestCtx, status int, e Error) {
+	ctx.SetStatusCode(status)
+	ctx.SetContentType(MIMEApplicationJSON)
+	res, err := json.Marshal(e)
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		return
+	}
 	ctx.SetBody(res)
 }
