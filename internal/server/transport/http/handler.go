@@ -1,8 +1,6 @@
 package http
 
 import (
-	"fmt"
-
 	"github.com/rs/zerolog"
 
 	"github.com/valyala/fasthttp"
@@ -18,5 +16,11 @@ func NewHandler(log zerolog.Logger) *Handler {
 
 func (h *Handler) autocomplete(ctx *fasthttp.RequestCtx) {
 	h.log.Info().Str("request", "autocomplete").Uint64("request_id", ctx.ID()).Msg("")
-	fmt.Fprintf(ctx, "RequestURI is %q", ctx.RequestURI())
+	h.response(ctx, fasthttp.StatusOK, ctx.Request.Host())
+}
+
+func (h *Handler) response(ctx *fasthttp.RequestCtx, status int, res []byte) {
+	ctx.SetStatusCode(status)
+	ctx.SetContentType(MIMEApplicationJSON)
+	ctx.SetBody(res)
 }

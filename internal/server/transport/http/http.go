@@ -8,6 +8,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+const MIMEApplicationJSON = "application/json"
+
 type Server struct {
 	s      *fasthttp.Server
 	bind   string
