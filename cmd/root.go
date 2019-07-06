@@ -18,6 +18,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"reflect"
+	"strings"
+
+	"github.com/rustwizard/tpa/internal/server"
 
 	"github.com/spf13/cobra"
 
@@ -25,7 +29,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	Conf    server.Config
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -74,11 +81,39 @@ func initConfig() {
 		viper.SetConfigName(".tpa")
 	}
 
-	viper.SetEnvPrefix("TPA")
+	viper.SetEnvPrefix("tpa")
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+
+	BindEnvs(Conf)
+
+	if err := viper.Unmarshal(&Conf); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func BindEnvs(iface interface{}, parts ...string) {
+	ifv := reflect.ValueOf(iface)
+	ift := reflect.TypeOf(iface)
+	for i := 0; i < ift.NumField(); i++ {
+		v := ifv.Field(i)
+		t := ift.Field(i)
+		tv, ok := t.Tag.Lookup("mapstructure")
+		if !ok {
+			continue
+		}
+		switch v.Kind() {
+		case reflect.Struct:
+			BindEnvs(v.Interface(), append(parts, tv)...)
+		default:
+			if err := viper.BindEnv(strings.Join(append(parts, tv), ".")); err != nil {
+				os.Exit(1)
+			}
+		}
 	}
 }
