@@ -17,7 +17,16 @@ type Server struct {
 
 func NewServer(log zerolog.Logger, conf *server.Config) *Server {
 	return &Server{
-		s:      &fasthttp.Server{},
+		s: &fasthttp.Server{
+			Handler: func(ctx *fasthttp.RequestCtx) {
+				switch string(ctx.Path()) {
+				case "/":
+					LogRequest(autocompleteHandler)(ctx)
+				default:
+					ctx.Error("unsupported path", fasthttp.StatusNotFound)
+				}
+			},
+		},
 		bind:   conf.Bind,
 		reqttl: conf.RequestTTL * time.Second,
 		log:    log,
@@ -26,5 +35,6 @@ func NewServer(log zerolog.Logger, conf *server.Config) *Server {
 
 func (srv *Server) Run() error {
 	srv.log.Info().Msgf("http server started at: %s", srv.bind)
+
 	return srv.s.ListenAndServe(srv.bind)
 }
