@@ -3,9 +3,9 @@ services:
   autocomplete:
     build: .
     ports:
-      - "0.0.0.0:8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
-      TPA_SERVER_BIND: 127.0.0.1:8080
+      TPA_SERVER_BIND: 0.0.0.0:8080
       TPA_SERVER_REQUEST_TTL: 3s
       TPA_SERVER_TRANSPORT: http
     command: ["server"]
