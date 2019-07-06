@@ -13,24 +13,28 @@ type Server struct {
 	bind   string
 	reqttl time.Duration
 	log    zerolog.Logger
+	rh     *Handler
 }
 
 func NewServer(log zerolog.Logger, conf *server.Config) *Server {
-	return &Server{
-		s: &fasthttp.Server{
-			Handler: func(ctx *fasthttp.RequestCtx) {
-				switch string(ctx.Path()) {
-				case "/":
-					LogRequest(autocompleteHandler)(ctx)
-				default:
-					ctx.Error("unsupported path", fasthttp.StatusNotFound)
-				}
-			},
-		},
+	srv := &Server{
+		s:      &fasthttp.Server{},
 		bind:   conf.Bind,
 		reqttl: conf.RequestTTL * time.Second,
 		log:    log,
 	}
+
+	srv.rh = NewHandler(log)
+	srv.s.Handler = func(ctx *fasthttp.RequestCtx) {
+		switch string(ctx.Path()) {
+		case "/":
+			srv.rh.logRequest(srv.rh.autocomplete)(ctx)
+		default:
+			ctx.Error("unsupported path", fasthttp.StatusNotFound)
+		}
+	}
+
+	return srv
 }
 
 func (srv *Server) Run() error {
