@@ -22,19 +22,18 @@ func NewServer(log zerolog.Logger, conf *server.Config, h *Handler) *Server {
 	srv := &Server{
 		s:      &fasthttp.Server{},
 		bind:   conf.Bind,
-		reqttl: conf.RequestTTL * time.Second,
+		reqttl: conf.RequestTTL,
 		log:    log,
 	}
 
 	srv.rh = h
 
 	srv.s.Handler = func(ctx *fasthttp.RequestCtx) {
-
 		ctx.SetUserValue("reqttl", srv.reqttl)
 
 		switch string(ctx.Path()) {
 		case "/":
-			srv.rh.logRequest(srv.rh.autocomplete)(ctx)
+			srv.rh.logRequest(fasthttp.TimeoutHandler(srv.rh.autocomplete, srv.reqttl, "request timeout"))(ctx)
 		default:
 			ctx.Error("unsupported path", fasthttp.StatusNotFound)
 		}

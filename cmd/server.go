@@ -2,10 +2,9 @@ package cmd
 
 import (
 	"os"
+	"time"
 
-	"github.com/mediocregopher/radix/v3"
-
-	"github.com/rustwizard/tpa/internal/cache"
+	"github.com/gomodule/redigo/redis"
 
 	"github.com/rustwizard/tpa/internal/pac"
 
@@ -29,14 +28,22 @@ var serverCmd = &cobra.Command{
 
 		switch Conf.Transport {
 		case "http":
-			rad, err := radix.Dial("tcp", Conf.CacheBind)
+			rediscl, err := redis.Dial("tcp", Conf.CacheBind)
 			if err != nil {
 				log.Fatal().Err(err).Msg("")
 			}
-			defer rad.Close()
+			defer rediscl.Close()
 
-			radcl := radix.Client(rad)
-			cachesvc := cache.NewService(radcl)
+			go func() {
+				for {
+					if _, err := rediscl.Do("PING"); err != nil {
+						log.Error().Err(err).Msg("redis ping")
+					}
+					time.Sleep(1 * time.Second)
+				}
+			}()
+
+			cachesvc := pac.NewCache(rediscl)
 			pacsvc := pac.NewService(log, Conf.RemoteAPIPath, cachesvc)
 			handler := http.NewHandler(log, pacsvc)
 			srv := http.NewServer(log, &Conf, handler)
