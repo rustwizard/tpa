@@ -1,6 +1,10 @@
 package http
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/rustwizard/tpa/internal/pac"
+)
 
 type AutocompleteRequest struct {
 	Term   string   `json:"term" valid:"required"`
@@ -10,4 +14,8 @@ type AutocompleteRequest struct {
 
 func (a AutocompleteRequest) String() string {
 	return fmt.Sprintf("term=%s, locale=%s, types=%q", a.Term, a.Locale, a.Types)
+}
+
+func marshalPacRequest(a *AutocompleteRequest) *pac.Request {
+	return &pac.Request{}
 }

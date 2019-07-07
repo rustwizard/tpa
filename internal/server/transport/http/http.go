@@ -18,7 +18,7 @@ type Server struct {
 	rh     *Handler
 }
 
-func NewServer(log zerolog.Logger, conf *server.Config) *Server {
+func NewServer(log zerolog.Logger, conf *server.Config, h *Handler) *Server {
 	srv := &Server{
 		s:      &fasthttp.Server{},
 		bind:   conf.Bind,
@@ -26,8 +26,12 @@ func NewServer(log zerolog.Logger, conf *server.Config) *Server {
 		log:    log,
 	}
 
-	srv.rh = NewHandler(log)
+	srv.rh = h
+
 	srv.s.Handler = func(ctx *fasthttp.RequestCtx) {
+
+		ctx.SetUserValue("reqttl", srv.reqttl)
+
 		switch string(ctx.Path()) {
 		case "/":
 			srv.rh.logRequest(srv.rh.autocomplete)(ctx)

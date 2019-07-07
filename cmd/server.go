@@ -3,6 +3,8 @@ package cmd
 import (
 	"os"
 
+	"github.com/rustwizard/tpa/internal/pac"
+
 	"github.com/rustwizard/tpa/internal/server/transport/http"
 
 	"github.com/rustwizard/tpa/internal/server"
@@ -23,7 +25,10 @@ var serverCmd = &cobra.Command{
 
 		switch Conf.Transport {
 		case "http":
-			srv := http.NewServer(log, &Conf)
+
+			pacsvc := pac.NewService(log.With().Str("pkg", "pac").Logger(), Conf.RemoteAPIPath)
+			handler := http.NewHandler(log, pacsvc)
+			srv := http.NewServer(log, &Conf, handler)
 			if err := srv.Run(); err != nil {
 				log.Fatal().Err(err).Msg("")
 			}
