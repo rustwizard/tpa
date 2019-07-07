@@ -10,3 +10,12 @@ services:
       TPA_SERVER_TRANSPORT: http
       TPA_REMOTE_API_PATH: https://places.aviasales.ru/v2/places.json?
     command: ["server"]
+  redis:
+    container_name: redis
+    image: redis
+    sysctls:
+      net.core.somaxconn: 1024
+    ports:
+      - "127.0.0.1:6379:6379"
+    entrypoint: redis-server --appendonly yes
+    restart: always
