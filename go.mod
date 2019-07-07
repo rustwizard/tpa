@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.41.0 // indirect
+	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 	github.com/buaazp/fasthttprouter v0.1.1
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.13+incompatible // indirect
@@ -33,6 +34,7 @@ require (
 	github.com/ugorji/go v1.1.7 // indirect
 	github.com/valyala/fasthttp v1.3.0
 	go.etcd.io/bbolt v1.3.3 // indirect
+	go.uber.org/zap v1.10.0
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
 	golang.org/x/exp v0.0.0-20190627132806-fd42eb6b336f // indirect
 	golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9 // indirect
