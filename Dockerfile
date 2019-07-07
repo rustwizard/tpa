@@ -16,6 +16,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 
 
 FROM alpine
+RUN apk add --update --no-cache ca-certificates openssl
 COPY --from=builder /app/tpa /app/
 EXPOSE 8080
 ENTRYPOINT ["/app/tpa"]

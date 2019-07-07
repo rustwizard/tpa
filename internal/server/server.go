@@ -9,6 +9,7 @@ type Config struct {
 	RequestTTL    time.Duration `mapstructure:"SERVER_REQUEST_TTL"`
 	Transport     string        `mapstructure:"SERVER_TRANSPORT"`
 	RemoteAPIPath string        `mapstructure:"REMOTE_API_PATH"`
+	CacheBind     string        `mapstructure:"CACHE_BIND"`
 }
 
 type Runner interface {

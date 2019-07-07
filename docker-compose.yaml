@@ -2,6 +2,8 @@ version: "3"
 services:
   autocomplete:
     build: .
+    depends_on:
+        - redis
     ports:
       - "127.0.0.1:8080:8080"
     environment:
@@ -9,4 +11,15 @@ services:
       TPA_SERVER_REQUEST_TTL: 3s
       TPA_SERVER_TRANSPORT: http
       TPA_REMOTE_API_PATH: https://places.aviasales.ru/v2/places.json?
+      TPA_CACHE_BIND: redis:6379
     command: ["server"]
+  redis:
+    container_name: redis
+    image: redis
+    sysctls:
+      net.core.somaxconn: 1024
+    ports:
+      - "127.0.0.1:6379:6379"
+    entrypoint: redis-server --appendonly yes
+    restart: always
+
