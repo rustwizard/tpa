@@ -47,7 +47,7 @@ func (h *Handler) autocomplete(ctx *fasthttp.RequestCtx) {
 	rctx, cancel := context.WithTimeout(ctx, ttl.(time.Duration))
 	defer cancel()
 
-	pr, err := h.pac.Do(rctx, marshalPacRequest(&areq))
+	pr, err := h.pac.Do(rctx, makePacRequest(&areq))
 	if err != nil {
 		h.log.Err(err).Uint64("request_id", ctx.ID()).Msg("process request")
 		h.responseError(ctx, fasthttp.StatusBadGateway, ErrProcessRequest)
@@ -55,9 +55,9 @@ func (h *Handler) autocomplete(ctx *fasthttp.RequestCtx) {
 
 	}
 
-	aresp := umarshalPacResponse(pr)
+	aresp := makeAutocompleteResponse(pr)
 
-	b, err := json.Marshal(aresp)
+	b, err := json.Marshal(aresp.Collection)
 	if err != nil {
 		h.log.Err(err).Uint64("request_id", ctx.ID()).Msg("parse json")
 		h.responseError(ctx, fasthttp.StatusBadGateway, ErrParseJSON)

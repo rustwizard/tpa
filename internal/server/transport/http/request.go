@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/rustwizard/tpa/internal/pac"
 )
@@ -16,6 +17,11 @@ func (a AutocompleteRequest) String() string {
 	return fmt.Sprintf("term=%s, locale=%s, types=%q", a.Term, a.Locale, a.Types)
 }
 
-func marshalPacRequest(a *AutocompleteRequest) *pac.Request {
-	return &pac.Request{}
+func makePacRequest(a *AutocompleteRequest) *pac.Request {
+	pacreq := &pac.Request{}
+	pacreq.URI = fmt.Sprintf("term=%s&locale=%s", url.QueryEscape(a.Term), a.Locale)
+	for _, v := range a.Types {
+		pacreq.URI += fmt.Sprintf("&%s=%s", url.QueryEscape("types[]"), v)
+	}
+	return pacreq
 }

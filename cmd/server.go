@@ -26,7 +26,7 @@ var serverCmd = &cobra.Command{
 		switch Conf.Transport {
 		case "http":
 
-			pacsvc := pac.NewService(log.With().Str("pkg", "pac").Logger(), Conf.RemoteAPIPath)
+			pacsvc := pac.NewService(log, Conf.RemoteAPIPath)
 			handler := http.NewHandler(log, pacsvc)
 			srv := http.NewServer(log, &Conf, handler)
 			if err := srv.Run(); err != nil {
