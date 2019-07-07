@@ -3,6 +3,10 @@ package cmd
 import (
 	"os"
 
+	"github.com/mediocregopher/radix/v3"
+
+	"github.com/rustwizard/tpa/internal/cache"
+
 	"github.com/rustwizard/tpa/internal/pac"
 
 	"github.com/rustwizard/tpa/internal/server/transport/http"
@@ -25,8 +29,15 @@ var serverCmd = &cobra.Command{
 
 		switch Conf.Transport {
 		case "http":
+			rad, err := radix.Dial("tcp", Conf.CacheBind)
+			if err != nil {
+				log.Fatal().Err(err).Msg("")
+			}
+			defer rad.Close()
 
-			pacsvc := pac.NewService(log, Conf.RemoteAPIPath)
+			radcl := radix.Client(rad)
+			cachesvc := cache.NewService(radcl)
+			pacsvc := pac.NewService(log, Conf.RemoteAPIPath, cachesvc)
 			handler := http.NewHandler(log, pacsvc)
 			srv := http.NewServer(log, &Conf, handler)
 			if err := srv.Run(); err != nil {

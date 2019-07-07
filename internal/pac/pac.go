@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/rustwizard/tpa/internal/cache"
+
 	"github.com/valyala/fasthttp"
 
 	"github.com/pkg/errors"
@@ -16,6 +18,7 @@ import (
 type Service struct {
 	log           zerolog.Logger
 	RemoteAPIPath string
+	cachesvc      *cache.Service
 }
 
 type Request struct {
@@ -53,8 +56,8 @@ type Response struct {
 	Collection []RespEntity
 }
 
-func NewService(log zerolog.Logger, APIPath string) *Service {
-	return &Service{log: log, RemoteAPIPath: APIPath}
+func NewService(log zerolog.Logger, APIPath string, cachesvc *cache.Service) *Service {
+	return &Service{log: log, RemoteAPIPath: APIPath, cachesvc: cachesvc}
 }
 
 func (s *Service) Do(ctx context.Context, req *Request) (*Response, error) {
