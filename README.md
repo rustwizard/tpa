@@ -8,8 +8,8 @@ docker-compose build && docker-compose up
 After that you could test it via curl
 
 ```
-curl -vd '{"term":"Flo", "locale":"en", "types": ["city", "airport"]}' \ 
--H "Content-Type: application/json" \ 
+curl -vd '{"term":"Flo", "locale":"en", "types": ["city", "airport"]}' \
+-H "Content-Type: application/json" \
 -X POST http://127.0.0.1:8080
 ```
 
